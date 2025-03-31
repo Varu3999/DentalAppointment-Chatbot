@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4",
-    "jsonwebtoken": "^9.0.2",
+    "jose": "^6.0.10",
     "next": "15.2.4",
     "nodemailer": "^6.10.0",
     "react": "^19.0.0",
