@@ -8,40 +8,67 @@ import { Card } from "../../components/ui/card";
 
 export default function ChatPage() {
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: 1,
-      content: "Hello! I'm your dental appointment assistant. How can I help you today?",
-      sender: "bot",
-      timestamp: new Date().toISOString(),
-    },
-    {
-      id: 2,
-      content: "Hi, I need to schedule a cleaning appointment",
-      sender: "user",
-      timestamp: new Date().toISOString(),
-    },
-    {
-      id: 3,
-      content: "I can help you with that! What day would you prefer?",
+      content:
+        "Hello! I'm your dental appointment assistant. How can I help you today?",
       sender: "bot",
       timestamp: new Date().toISOString(),
     },
   ]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!message.trim()) return;
 
-    const newMessage = {
+    const userMessage = {
       id: messages.length + 1,
-      content: message,
+      content: message.trim(),
       sender: "user",
       timestamp: new Date().toISOString(),
     };
 
-    setMessages([...messages, newMessage]);
+    setMessages([...messages, userMessage]);
     setMessage("");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: userMessage.content }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to get response");
+      }
+
+      const botMessage = {
+        id: messages.length + 2,
+        content: data.reply,
+        sender: "bot",
+        timestamp: new Date().toISOString(),
+      };
+
+      setMessages((prev) => [...prev, botMessage]);
+    } catch (error) {
+      console.error("Chat error:", error);
+      const errorMessage = {
+        id: messages.length + 2,
+        content: "Sorry, I encountered an error. Please try again.",
+        sender: "bot",
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleKeyPress = (e) => {
@@ -75,6 +102,17 @@ export default function ChatPage() {
                   </div>
                 </div>
               ))}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="max-w-[80%] rounded-lg px-4 py-2 bg-gray-100 text-gray-900">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </ScrollArea>
         </div>
