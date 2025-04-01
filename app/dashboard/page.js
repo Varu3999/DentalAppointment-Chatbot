@@ -166,7 +166,7 @@ export default function Dashboard() {
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               What would you like to do?
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <button
                 onClick={() => router.push("/patients")}
                 className="p-4 border rounded-lg hover:bg-gray-50 text-left"
@@ -187,6 +187,17 @@ export default function Dashboard() {
                 </h4>
                 <p className="mt-1 text-sm text-gray-500">
                   Book a new appointment or manage existing ones
+                </p>
+              </button>
+              <button
+                onClick={() => router.push("/chat")}
+                className="p-4 border rounded-lg hover:bg-gray-50 text-left bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100"
+              >
+                <h4 className="text-base font-medium text-gray-900">
+                  Chat Assistant
+                </h4>
+                <p className="mt-1 text-sm text-gray-500">
+                  Book appointments through our AI chat assistant
                 </p>
               </button>
             </div>
