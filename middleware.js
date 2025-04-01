@@ -8,7 +8,8 @@ const PUBLIC_PATHS = [
   "/api/auth/signin",
   "/api/auth/signin/verify",
   "/api/auth/register",
-  "/api/auth/verify"
+  "/api/auth/verify",
+  "/api/auth/me"
 ];
 
 // Add paths that should redirect to dashboard if user is authenticated
