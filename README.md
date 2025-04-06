@@ -1,45 +1,136 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Dental Appointment Chatbot System
 
-## Environment Variables
+## Introduction
+The Dental Appointment Chatbot System is an intelligent, interactive platform designed to streamline the dental appointment booking process. Built with Next.js and integrated with AI capabilities, this system provides a conversational interface for patients to schedule appointments, manage their dental care, and handle emergency situations.
 
+### Key Features
+1. **Smart Appointment Booking**
+   - Regular appointment scheduling
+   - Family appointment booking
+   - Emergency appointment requests
+   - Real-time slot availability checking
+
+2. **User Authentication**
+   - Secure email-based verification
+   - JWT-based session management
+   - Protected patient information
+
+3. **Patient Management**
+   - Multiple patient profiles per account
+   - Family appointment coordination
+   - Patient history tracking
+
+4. **Emergency Handling**
+   - Urgent care request processing
+   - Immediate notification system
+   - Priority scheduling
+
+5. **Email Notifications**
+   - Appointment confirmations
+   - Verification codes
+   - Emergency request notifications
+   - Family booking confirmations
+
+## Setup Guide
+
+### Prerequisites
+- Node.js 18+ installed
+- npm or yarn package manager
+- Gmail account for email notifications
+- Supabase account for database
+
+### Environment Variables
 Create a `.env` file in the root directory with the following variables:
 
 ```bash
-# Chat context window size (optional, defaults to 20)
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+SUPABASE_SERVICE_KEY=your_supabase_service_key
+
+# Email Configuration (Gmail)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=465
+EMAIL_USER=your_gmail_address
+EMAIL_PASS=your_gmail_app_password
+
+# JWT Configuration
+JWT_SECRET=your_jwt_secret_key
+
+# Management Email
+MANAGEMENT_EMAIL=dental_office_email
+
+# Chat Settings (optional)
 CHAT_CONTEXT_WINDOW_SIZE=20
 ```
 
-## Getting Started
+### Installation
 
-First, run the development server:
+1. Clone the repository:
+```bash
+git clone <repository_url>
+cd dental-registration
+```
 
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Set up the database:
+   - Create a new Supabase project
+   - Run the database migrations (if any)
+   - Update the environment variables with your Supabase credentials
+
+4. Configure email:
+   - Enable 2-factor authentication in your Gmail account
+   - Generate an App Password
+   - Update the email configuration in .env
+
+### Running the Application
+
+1. Start the development server:
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### Usage Flows
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Regular Appointment Booking**
+   - User authenticates
+   - Selects appointment type
+   - Views available slots
+   - Confirms booking
+   - Receives email confirmation
 
-## Learn More
+2. **Family Appointment Booking**
+   - User selects multiple family members
+   - Chooses a common date
+   - Books consecutive slots
+   - Receives family booking confirmation
 
-To learn more about Next.js, take a look at the following resources:
+3. **Emergency Appointment**
+   - User requests urgent care
+   - System checks immediate availability
+   - If no slots, sends emergency notification
+   - Management team receives alert
+   - Patient gets status updates
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. **Account Management**
+   - Email verification
+   - Profile updates
+   - Family member management
+   - Appointment history view
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Technologies Used
+- Next.js 13+ (App Router)
+- Supabase (Database)
+- Node.js/Express
+- JWT Authentication
+- Nodemailer
+- TailwindCSS
