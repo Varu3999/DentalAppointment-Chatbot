@@ -9,19 +9,20 @@ const PUBLIC_PATHS = [
   "/api/auth/signin/verify",
   "/api/auth/register",
   "/api/auth/verify",
-  "/api/auth/me"
+  "/api/auth/me",
+  "/chat",
+  "/api/chat",
+  "/api/schedule/availableSlots",
+  "/api/schedule/availableSlots/earliest",
 ];
 
 // Add paths that should redirect to dashboard if user is authenticated
-const AUTH_PATHS = [
-  "/signin",
-  "/register"
-];
+const AUTH_PATHS = ["/signin", "/register"];
 
 // Convert string to Uint8Array for jose
 const getSecretKey = () => {
   const secret = process.env.JWT_SECRET;
-  if (!secret) throw new Error('JWT_SECRET is not defined');
+  if (!secret) throw new Error("JWT_SECRET is not defined");
   return new TextEncoder().encode(secret);
 };
 
@@ -34,20 +35,23 @@ export async function middleware(request) {
   }
 
   // Skip middleware for public paths
-  if (PUBLIC_PATHS.some(path => pathname.startsWith(path))) {
-    console.log('Middleware - Skipping public path:', pathname);
+  if (PUBLIC_PATHS.some((path) => pathname.startsWith(path))) {
+    console.log("Middleware - Skipping public path:", pathname);
     return NextResponse.next();
   }
 
   // Get token from cookie
   const token = request.cookies.get("token")?.value;
-  console.log('Middleware - Processing request:', { pathname, hasToken: !!token });
+  console.log("Middleware - Processing request:", {
+    pathname,
+    hasToken: !!token,
+  });
 
   // If no token and trying to access protected route
   if (!token) {
     // If accessing protected route, redirect to signin
-    if (!PUBLIC_PATHS.some(path => pathname.startsWith(path))) {
-      console.log('Middleware - No token, redirecting to signin');
+    if (!PUBLIC_PATHS.some((path) => pathname.startsWith(path))) {
+      console.log("Middleware - No token, redirecting to signin");
       const url = new URL("/signin", request.url);
       url.searchParams.set("redirect", pathname);
       return NextResponse.redirect(url);
@@ -58,18 +62,18 @@ export async function middleware(request) {
   try {
     // Verify token
     const { payload } = await jwtVerify(token, getSecretKey());
-    console.log('Middleware - Token verification result:', { payload });
+    console.log("Middleware - Token verification result:", { payload });
 
     // If token is invalid, redirect to signin
     if (!payload) {
-      console.log('Middleware - Invalid token, redirecting to signin');
+      console.log("Middleware - Invalid token, redirecting to signin");
       const url = new URL("/signin", request.url);
       url.searchParams.set("redirect", pathname);
       return NextResponse.redirect(url);
     }
 
     // If token is valid and user tries to access auth pages, redirect to dashboard
-    if (AUTH_PATHS.some(path => pathname.startsWith(path))) {
+    if (AUTH_PATHS.some((path) => pathname.startsWith(path))) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
 
@@ -94,7 +98,7 @@ export async function middleware(request) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      expires: new Date(0)
+      expires: new Date(0),
     });
     return response;
   }
@@ -110,6 +114,6 @@ export const config = {
      * 3. /static/* (static files)
      * 4. /favicon.ico, /robots.txt, etc.
      */
-    '/((?!api/auth/.*|_next/.*|favicon\.ico|robots\.txt).*)',
+    "/((?!api/auth/.*|_next/.*|favicon.ico|robots.txt).*)",
   ],
 };

@@ -41,7 +41,7 @@ export default function ScheduleAppointment() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`/api/schedule/availableSlots?date=${date}`);
+      const response = await fetch(`/api/schedule/availableSlots?startDate=${date}`);
       const data = await response.json();
 
       if (!response.ok) {

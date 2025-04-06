@@ -23,43 +23,13 @@ async function verifyPatientAccess(userId, patientId) {
   return true;
 }
 
-// Send confirmation email
-async function sendConfirmationEmail(accountEmail, appointmentDetails) {
-  const { time, appointmentType, patientName } = appointmentDetails;
-  const formattedTime = new Date(time).toLocaleString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    timeZone: 'America/Los_Angeles'
-  });
-
-  const emailContent = `
-    Appointment Confirmation
-    
-    Date & Time: ${formattedTime}
-    Patient: ${patientName}
-    Type: ${appointmentType}
-    
-    Thank you for booking with us!
-  `;
-
-  try {
-    // Use your email service here (e.g., SendGrid, AWS SES, etc.)
-    // For now, we'll just log it
-    console.log('Sending email to:', accountEmail);
-    console.log('Email content:', emailContent);
-  } catch (error) {
-    console.error('Error sending confirmation email:', error);
-  }
-}
+import { sendAppointmentConfirmation } from "@/utils/email";
 
 export async function POST(request) {
   try {
     // Verify authentication
-    const token = cookies().get("token")?.value;
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
     if (!token) {
       return NextResponse.json(
         { message: "Authentication required" },
@@ -74,9 +44,10 @@ export async function POST(request) {
     const userId = verified.payload.userId;
 
     // Get request body
-    const { patientId, slotId, appointmentType, additionalNotes } = await request.json();
+    const { patientId, slotId, appointmentType, additionalNotes } =
+      await request.json();
 
-    // Validate required fields
+    // Validate required fields and ensure UUIDs are strings
     if (!patientId || !slotId || !appointmentType) {
       return NextResponse.json(
         { message: "Missing required fields" },
@@ -104,19 +75,22 @@ export async function POST(request) {
 
     // Start a transaction
     const { data: appointment, error: appointmentError } = await supabase.rpc(
-      'book_appointment',
+      "book_appointment",
       {
-        p_patient_id: patientId,
-        p_slot_id: slotId,
+        p_patient_id: String(patientId),
+        p_slot_id: String(slotId),
         p_appointment_type: appointmentType,
-        p_additional_notes: additionalNotes
+        p_additional_notes: additionalNotes || "",
       }
     );
 
     if (appointmentError) {
-      console.error('Error booking appointment:', appointmentError);
+      console.error("Error booking appointment:", appointmentError);
       return NextResponse.json(
-        { message: "Failed to book appointment. Slot may no longer be available." },
+        {
+          message:
+            "Failed to book appointment. Slot may no longer be available.",
+        },
         { status: 409 }
       );
     }
@@ -143,11 +117,17 @@ export async function POST(request) {
 
     // Send confirmation email
     if (accountData?.email) {
-      await sendConfirmationEmail(accountData.email, {
-        time: slotData.time,
-        appointmentType,
-        patientName: patientData.full_name
-      });
+      try {
+        await sendAppointmentConfirmation(accountData.email, {
+          time: slotData.time,
+          appointmentType,
+          additionalNotes,
+          patientName: patientData.full_name
+        });
+      } catch (error) {
+        console.error("Error sending confirmation email:", error);
+        // Don't fail the request if email fails
+      }
     }
 
     return NextResponse.json({
@@ -156,8 +136,8 @@ export async function POST(request) {
         id: appointment.appointment_id,
         time: slotData.time,
         patientName: patientData.full_name,
-        type: appointmentType
-      }
+        type: appointmentType,
+      },
     });
   } catch (error) {
     console.error("Error booking appointment:", error);

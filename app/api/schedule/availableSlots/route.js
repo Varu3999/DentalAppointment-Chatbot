@@ -9,33 +9,43 @@ function getSupabaseClient() {
   );
 }
 
-// GET /api/schedule/availableSlots?date=YYYY-MM-DD
+// GET /api/schedule/availableSlots?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const dateStr = searchParams.get('date');
+    const startDateStr = searchParams.get('startDate');
+    const endDateStr = searchParams.get('endDate') || startDateStr; // If endDate not provided, use startDate
 
-    // Validate date parameter
-    if (!dateStr) {
+    // Validate date parameters
+    if (!startDateStr) {
       return NextResponse.json(
-        { message: "Date parameter is required (format: YYYY-MM-DD)" },
+        { message: "startDate parameter is required (format: YYYY-MM-DD)" },
         { status: 400 }
       );
     }
 
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) {
+    const startDate = new Date(startDateStr);
+    const endDate = new Date(endDateStr);
+
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
       return NextResponse.json(
         { message: "Invalid date format. Use YYYY-MM-DD" },
         { status: 400 }
       );
     }
 
-    // Set time range for the requested date (in PST)
-    const startTime = new Date(date);
+    if (endDate < startDate) {
+      return NextResponse.json(
+        { message: "endDate cannot be before startDate" },
+        { status: 400 }
+      );
+    }
+
+    // Set time range for the date range (in PST)
+    const startTime = new Date(startDate);
     startTime.setUTCHours(16, 0, 0, 0); // 9 AM PST = 16:00 UTC
     
-    const endTime = new Date(date);
+    const endTime = new Date(endDate);
     endTime.setUTCHours(3, 0, 0, 0); // 8 PM PST = 03:00 UTC next day
     endTime.setDate(endTime.getDate() + 1); // Add one day for end time
 

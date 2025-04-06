@@ -1,5 +1,14 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+## Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
+
+```bash
+# Chat context window size (optional, defaults to 20)
+CHAT_CONTEXT_WINDOW_SIZE=20
+```
+
 ## Getting Started
 
 First, run the development server:
